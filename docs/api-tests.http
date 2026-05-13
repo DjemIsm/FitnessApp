@@ -1,0 +1,18 @@
+@baseUrl = http://localhost:5166
+
+### Health
+GET {{baseUrl}}/health
+
+### List workouts
+GET {{baseUrl}}/api/workouts
+
+### Create workout
+POST {{baseUrl}}/api/workouts
+Content-Type: application/json
+
+{
+  "youtubeUrl": "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+}
+
+### Send random workout email now
+POST {{baseUrl}}/api/workouts/send-random
