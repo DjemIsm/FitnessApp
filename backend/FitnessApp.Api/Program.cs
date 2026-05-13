@@ -118,7 +118,9 @@ using (var scope = app.Services.CreateScope())
     await db.Database.MigrateAsync();
 }
 
-RecurringJob.AddOrUpdate<DailyWorkoutJob>(
+var recurringJobManager = app.Services.GetRequiredService<IRecurringJobManager>();
+
+recurringJobManager.AddOrUpdate<DailyWorkoutJob>(
     "daily-workout-email",
     job => job.SendAsync(CancellationToken.None),
     builder.Configuration["Hangfire:DailyWorkoutCron"] ?? "0 8 * * *",
