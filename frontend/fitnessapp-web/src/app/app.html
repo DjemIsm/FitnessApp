@@ -1,49 +1,49 @@
 <main class="page">
- <header class="hero">
- <div>
- <p class="eyebrow">FitnessApp</p>
- <h1>Deine Workout-Sammlung</h1>
- <p>YouTube-Workout speichern, anzeigen und taeglich zufaellig per E-Mail erhalten.</p>
- </div>
- </header>
+    <header class="hero">
+        <div>
+            <p class="eyebrow">FitnessApp</p>
+            <h1>Deine Workout-Sammlung</h1>
+            <p>YouTube-Workout speichern, anzeigen und taeglich zufaellig per E-Mail erhalten.</p>
+        </div>
+    </header>
 
- <section class="card form-card">
- <h2>Workout hinzufuegen</h2>
- <form (ngSubmit)="addWorkout()">
- <input [formControl]="youtubeUrl" placeholder="YouTube-Link einfuegen" />
- <button type="submit" [disabled]="loading() || youtubeUrl.invalid">Speichern</button>
- </form>
+    <section class="card form-card">
+        <h2>Workout hinzufuegen</h2>
+        <form>
+            <input [formControl]="youtubeUrl" placeholder="YouTube-Link einfuegen" />
+            <button type="button" [disabled]="loading() || youtubeUrl.invalid" (click)="addWorkout()">Speichern</button>
+        </form>
 
- <button class="secondary" type="button" (click)="sendRandomWorkout()">Test-Mail senden</button>
+        <button class="secondary" type="button" (click)="sendRandomWorkout()">Test-Mail senden</button>
 
- @if (error()) { <p class="message">{{ error() }}</p> }
- </section>
+        @if (error()) { <p class="message">{{ error() }}</p> }
+    </section>
 
- @if (selected()) {
- <section class="card player-card">
- <h2>{{ selected()!.title }}</h2>
- <p>{{ selected()!.channelTitle }}</p>
- <iframe [src]="embedUrl(selected()!)" title="Workout Video" allowfullscreen></iframe>
- </section>
- }
+    @if (selected()) {
+    <section class="card player-card">
+        <h2>{{ selected()!.title }}</h2>
+        <p>{{ selected()!.channelTitle }}</p>
+        <iframe [src]="embedUrl(selected()!)" title="Workout Video" allowfullscreen></iframe>
+    </section>
+    }
 
- <section class="grid">
- @for (workout of workouts(); track workout.id) {
- <article class="card workout" [class.active]="selected()?.id === workout.id">
- @if (workout.thumbnailUrl) {
- <img [src]="workout.thumbnailUrl" [alt]="workout.title" />
- }
- <div class="workout-body">
- <h3>{{ workout.title }}</h3>
- <p>{{ workout.channelTitle }}</p>
- <div class="actions">
- <button type="button" (click)="selectWorkout(workout)">Ansehen</button>
- <button class="danger" type="button" (click)="deleteWorkout(workout)">Loeschen</button>
- </div>
- </div>
- </article>
- } @empty {
- <p>Noch keine Workouts gespeichert.</p>
- }
- </section>
+    <section class="grid">
+        @for (workout of workouts(); track workout.id) {
+        <article class="card workout" [class.active]="selected()?.id === workout.id">
+            @if (workout.thumbnailUrl) {
+            <img [src]="workout.thumbnailUrl" [alt]="workout.title" />
+            }
+            <div class="workout-body">
+                <h3>{{ workout.title }}</h3>
+                <p>{{ workout.channelTitle }}</p>
+                <div class="actions">
+                    <button type="button" (click)="selectWorkout(workout)">Ansehen</button>
+                    <button class="danger" type="button" (click)="deleteWorkout(workout)">Loeschen</button>
+                </div>
+            </div>
+        </article>
+        } @empty {
+        <p>Noch keine Workouts gespeichert.</p>
+        }
+    </section>
 </main>
