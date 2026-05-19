@@ -112,8 +112,9 @@ app.MapPost("/api/workouts/send-random", async (
     }
 });
 
-using (var scope = app.Services.CreateScope())
+if (!app.Environment.IsEnvironment("Testing"))
 {
+    using var scope = app.Services.CreateScope();
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     await db.Database.MigrateAsync();
 }
@@ -131,3 +132,5 @@ recurringJobManager.AddOrUpdate<DailyWorkoutJob>(
     });
 
 app.Run();
+
+public partial class Program { }
