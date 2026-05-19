@@ -8,3 +8,8 @@
 appsettings.Development.json
 .DS_Store
 .vscode/
+
+# Test coverage
+coverage/
+coverage.cobertura.xml
+TestResults/
