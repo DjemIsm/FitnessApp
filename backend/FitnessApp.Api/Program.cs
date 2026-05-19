@@ -23,17 +23,20 @@ if (string.IsNullOrWhiteSpace(connectionString))
         Environment.GetEnvironmentVariable("DATABASE_URL"));
 }
 
-if (string.IsNullOrWhiteSpace(connectionString))
-    throw new InvalidOperationException("Database connection string is missing.");
+if (!builder.Environment.IsEnvironment("Testing"))
+{
+    if (string.IsNullOrWhiteSpace(connectionString))
+        throw new InvalidOperationException("Database connection string is missing.");
+
+    builder.Services.AddDbContext<AppDbContext>(options =>
+        options.UseNpgsql(connectionString));
+}
 
 builder.Services.Configure<YoutubeOptions>(
     builder.Configuration.GetSection("YouTube"));
 
 builder.Services.Configure<MailOptions>(
     builder.Configuration.GetSection("Mail"));
-
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(connectionString));
 
 builder.Services.AddHttpClient<IYoutubeService, YoutubeService>();
 
@@ -52,11 +55,14 @@ builder.Services.AddCors(options =>
             .AllowAnyMethod());
 });
 
-builder.Services.AddHangfire(config =>
-    config.UsePostgreSqlStorage(options =>
-        options.UseNpgsqlConnection(connectionString)));
+if (!builder.Environment.IsEnvironment("Testing"))
+{
+    builder.Services.AddHangfire(config =>
+        config.UsePostgreSqlStorage(options =>
+            options.UseNpgsqlConnection(connectionString)));
 
-builder.Services.AddHangfireServer();
+    builder.Services.AddHangfireServer();
+}
 
 var app = builder.Build();
 
@@ -119,17 +125,20 @@ if (!app.Environment.IsEnvironment("Testing"))
     await db.Database.MigrateAsync();
 }
 
-var recurringJobManager = app.Services.GetRequiredService<IRecurringJobManager>();
+if (!app.Environment.IsEnvironment("Testing"))
+{
+    var recurringJobManager = app.Services.GetRequiredService<IRecurringJobManager>();
 
-recurringJobManager.AddOrUpdate<DailyWorkoutJob>(
-    "daily-workout-email",
-    job => job.SendAsync(CancellationToken.None),
-    builder.Configuration["Hangfire:DailyWorkoutCron"] ?? "0 8 * * *",
-    new RecurringJobOptions
-    {
-        TimeZone = TimeZoneInfo.FindSystemTimeZoneById(
-            builder.Configuration["Hangfire:TimeZone"] ?? "Europe/Berlin")
-    });
+    recurringJobManager.AddOrUpdate<DailyWorkoutJob>(
+        "daily-workout-email",
+        job => job.SendAsync(CancellationToken.None),
+        builder.Configuration["Hangfire:DailyWorkoutCron"] ?? "0 8 * * *",
+        new RecurringJobOptions
+        {
+            TimeZone = TimeZoneInfo.FindSystemTimeZoneById(
+                builder.Configuration["Hangfire:TimeZone"] ?? "Europe/Berlin")
+        });
+}
 
 app.Run();
 
